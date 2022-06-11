@@ -103,7 +103,7 @@ def process_file(filename):
                                 table_name.extend(list(map(lambda x: x.split()[0],temp_tbl_names)))
                                 temp_tbl_names.clear()
 
-                        if " FROM " in record:
+                        if " FROM " in record and process_cursor:
                             capture_tables = True
                             temp_tbl_names = list(filter(lambda x : len(x) > 1, record.split(" FROM ")[1].split(",")))
                             table_name.extend(list(map(lambda x: x.split()[0],temp_tbl_names)))

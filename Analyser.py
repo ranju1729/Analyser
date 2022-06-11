@@ -54,7 +54,7 @@ def process_file(filename):
                                                                "LEFT INNER JOIN","JOIN",
                                                                 "FOR READ ONLY WITH UR"]:
                                 extracted_data.extend([file_name + "|" + cursor_name + "|" + table
-                                              + "|" +"[" + " ".join(cursor_declaration) + "|" + folder_name +  "\n"])
+                                              + "|" +"[" + " ".join(cursor_declaration) + "]" + "|" + folder_name +  "\n"])
                         process_sql = False
                         process_cursor = False
                         cursor_declaration.clear()

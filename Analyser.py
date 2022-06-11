@@ -19,11 +19,12 @@ def get_files_in_directory():
 
 def process_file(filename):
     """
-
     :param filename:
     :return:Extracts data and return a list of records to be written to the final file
     """
     file_name = filename.split("\\")[-1].lstrip().rstrip()
+    folder_name = os.getcwd()
+
     try:
         with open(filename) as file:
             records = list(map(lambda r: r[6:72].upper(),file.readlines()))
@@ -53,7 +54,7 @@ def process_file(filename):
                                                                "LEFT INNER JOIN","JOIN",
                                                                 "FOR READ ONLY WITH UR"]:
                                 extracted_data.extend([file_name + "|" + cursor_name + "|" + table
-                                              + "|" +"[" + " ".join(cursor_declaration) + "\n"])
+                                              + "|" +"[" + " ".join(cursor_declaration) + "|" + folder_name +  "\n"])
                         process_sql = False
                         process_cursor = False
                         cursor_declaration.clear()
@@ -138,7 +139,7 @@ def main():
     creates the excel file with required details
     """
     #records to be written to the final file
-    records_to_write = ["program / file name | Cursor Name | Tables | Declaration" + "\n"]
+    records_to_write = ["program / file name | Cursor Name | Tables | Declaration | Source_Path" + "\n"]
 
     #get a list of files in the directory
     files_list = get_files_in_directory()

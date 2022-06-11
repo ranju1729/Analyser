@@ -422,7 +422,7 @@
 004600            ,I_ZONE                                               SAMPLE
 004610            ,C_GL_ACCOUNT                                         SAMPLE
 004620            ,I_BRAND_ID                                           SAMPLE
-004630             FROM TABLE1                                          SAMPLE
+004630             FROM TABLE1, TABLE3                                  SAMPLE
 004640             ORDER BY C_COMPANY                                   SAMPLE
 004650                      ,I_AREA                                     SAMPLE
 004660                      ,I_REGION                                   SAMPLE

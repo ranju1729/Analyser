@@ -23,7 +23,7 @@ def process_file(filename):
     :param filename:
     :return:Extracts data and return a list of records to be written to the final file
     """
-    file_name = filename.split("\\")[-1]
+    file_name = filename.split("\\")[-1].lstrip().rstrip()
     try:
         with open(filename) as file:
             records = list(map(lambda r: r[6:72].upper(),file.readlines()))
@@ -43,12 +43,16 @@ def process_file(filename):
 
                     #set the file name as program name if it is cobol
                     if "PROGRAM-ID" in record:
-                        file_name = record.split("ID.")[1].split(".")[0]
+                        file_name = record.split("ID.")[1].split(".")[0].lstrip().rstrip()
 
 
                     #set sql stop flag
                     if process_sql and "END-EXEC" in record and process_cursor:
-                        extracted_data.extend([file_name + "|" + cursor_name + "|" + "[" + ",".join(table_name) + "]"
+                        for table in table_name:
+                            if table.lstrip().rstrip() not in ["INNER JOIN","OUTER JOIN","LEFT OUTER JOIN",
+                                                               "LEFT INNER JOIN","JOIN",
+                                                                "FOR READ ONLY WITH UR"]:
+                                extracted_data.extend([file_name + "|" + cursor_name + "|" + table
                                               + "|" +"[" + " ".join(cursor_declaration) + "\n"])
                         process_sql = False
                         process_cursor = False
@@ -91,16 +95,19 @@ def process_file(filename):
                                 if index_to_check:
                                     index_end = min(index_to_check)
 
-                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record[:index_end + 1].split()))
+                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record[:index_end + 1].split(",")))
                                 table_name.extend(temp_tbl_names)
+                                temp_tbl_names.clear()
                             else:
-                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record.split()))
-                                table_name.extend(temp_tbl_names)
+                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record.split(",")))
+                                table_name.extend(list(map(lambda x: x.split()[0],temp_tbl_names)))
+                                temp_tbl_names.clear()
 
                         if " FROM " in record:
                             capture_tables = True
-                            temp_tbl_names = list(filter(lambda x : len(x) > 1, record.split(" FROM ")[1].split()))
-                            table_name.extend(temp_tbl_names)
+                            temp_tbl_names = list(filter(lambda x : len(x) > 1, record.split(" FROM ")[1].split(",")))
+                            table_name.extend(list(map(lambda x: x.split()[0],temp_tbl_names)))
+                            temp_tbl_names.clear()
 
 
                 except Exception as e:

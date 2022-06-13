@@ -27,17 +27,14 @@ def process_file(filename):
 
     try:
         with open(filename) as file:
-            records_temp = list(map(lambda r: r[6:72].upper(),file.readlines()))
-            records = list(filter(lambda r: len(r.replace(" ","")) > 0, records_temp))
+            records = list(map(lambda r: r[6:72].upper(),file.readlines()))
             process_sql = False
             process_cursor = False
-            declare_found = False
             capture_tables = False
             cursor_name = "N/A"
             cursor_declaration = []
             table_name = []
             extracted_data = []
-            declare_line = 1
 
             for record in records:
                 try:
@@ -70,23 +67,12 @@ def process_file(filename):
 
                     if process_sql:
 
-                        if "DECLARE " in record and not declare_found:
-                            declare_found = True
-                            declare_line += 1
-                            cursor_name = record.split("DECLARE")[1].sltrip().rstrip()
-
-
-                        if declare_found and " CURSOR " in record:
+                        if "DECLARE " in record and " CURSOR " in record:
                             process_cursor = True
-                            declare_found = False
                             cursor_name = record.split(" CURSOR ")[0].split()[-1]
 
-                        if declare_found and declare_line == 2:
-                            process_cursor = True
-                            declare_found = False
-
                         # set process cursor flag
-                        if process_cursor or declare_found:
+                        if process_cursor:
                             cursor_declaration.extend([record.replace("  ", "")])
 
                         if capture_tables:
@@ -110,17 +96,17 @@ def process_file(filename):
                                 if index_to_check:
                                     index_end = min(index_to_check)
 
-                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record[:index_end + 1].split(" ")))
+                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record[:index_end + 1].split()))
                                 table_name.extend(temp_tbl_names)
                                 temp_tbl_names.clear()
                             else:
-                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record.split(" ")))
+                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record.split()))
                                 table_name.extend(list(map(lambda x: x.split()[0].replace(",",""),temp_tbl_names)))
                                 temp_tbl_names.clear()
 
                         if " FROM " in record and process_cursor:
                             capture_tables = True
-                            temp_tbl_names = list(filter(lambda x : len(x) > 1, record.split(" FROM ")[1].split(" ")))
+                            temp_tbl_names = list(filter(lambda x : len(x) > 1, record.split(" FROM ")[1].split()))
                             table_name.extend(list(map(lambda x: x.split()[0].replace(",",""),temp_tbl_names)))
                             temp_tbl_names.clear()
 

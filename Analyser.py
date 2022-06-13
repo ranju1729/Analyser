@@ -73,8 +73,8 @@ def process_file(filename):
                         if "DECLARE " in record and not declare_found:
                             declare_found = True
                             declare_line += 1
-                            if " CURSOR " in record:
-                                cursor_name = record.split(" CURSOR ")[0].split()[-1]
+                            cursor_name = record.split("DECLARE")[1].sltrip().rstrip()
+
 
                         if declare_found and " CURSOR " in record:
                             process_cursor = True
@@ -110,18 +110,18 @@ def process_file(filename):
                                 if index_to_check:
                                     index_end = min(index_to_check)
 
-                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record[:index_end + 1].split(",")))
+                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record[:index_end + 1].split(" ")))
                                 table_name.extend(temp_tbl_names)
                                 temp_tbl_names.clear()
                             else:
-                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record.split(",")))
-                                table_name.extend(list(map(lambda x: x.split()[0],temp_tbl_names)))
+                                temp_tbl_names = list(filter(lambda x: len(x) > 1, record.split(" ")))
+                                table_name.extend(list(map(lambda x: x.split()[0].replace(",",""),temp_tbl_names)))
                                 temp_tbl_names.clear()
 
                         if " FROM " in record and process_cursor:
                             capture_tables = True
-                            temp_tbl_names = list(filter(lambda x : len(x) > 1, record.split(" FROM ")[1].split(",")))
-                            table_name.extend(list(map(lambda x: x.split()[0],temp_tbl_names)))
+                            temp_tbl_names = list(filter(lambda x : len(x) > 1, record.split(" FROM ")[1].split(" ")))
+                            table_name.extend(list(map(lambda x: x.split()[0].replace(",",""),temp_tbl_names)))
                             temp_tbl_names.clear()
 
 

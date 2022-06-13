@@ -37,12 +37,18 @@ def process_file(filename):
             table_name = []
             extracted_data = []
             maybe_cursor = False
+            cursor_line = 0
 
             for record in records:
                 try:
                     # skip comments
                     if record[0] == "*":
                         continue
+
+                    #see the second line for cursor
+                    if maybe_cursor and process_cursor:
+                        cursor_line += 1
+
 
                     # set the file name as program name if it is cobol
                     if "PROGRAM-ID" in record:
@@ -77,13 +83,15 @@ def process_file(filename):
                             maybe_cursor = True
                             process_cursor = True
 
-                        if maybe_cursor and process_cursor:
-                            if " CURSOR " in record:
+                        if maybe_cursor and process_cursor and cursor_line == 1:
+                            if "CURSOR " in record:
                                 maybe_cursor = False
+                                cursor_line = 0
                             else:
                                 maybe_cursor = False
                                 process_cursor = False
                                 cursor_declaration.clear()
+                                cursor_line = 0
 
                         # set process cursor flag
                         if process_cursor:

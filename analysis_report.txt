@@ -1,1 +1,0 @@
-program / file name ~$ Cursor Name ~$  Tables ~$ Declaration ~$ Source_Path

@@ -73,6 +73,8 @@ def process_file(filename):
                         if "DECLARE " in record and not declare_found:
                             declare_found = True
                             declare_line += 1
+                            if " CURSOR " in record:
+                                cursor_name = record.split(" CURSOR ")[0].split()[-1]
 
                         if declare_found and " CURSOR " in record:
                             process_cursor = True

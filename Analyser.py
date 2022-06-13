@@ -27,14 +27,17 @@ def process_file(filename):
 
     try:
         with open(filename) as file:
-            records = list(map(lambda r: r[6:72].upper(),file.readlines()))
+            records_temp = list(map(lambda r: r[6:72].upper(),file.readlines()))
+            records = list(filter(lambda r: len(r.replace(" ","")) > 0, records_temp))
             process_sql = False
             process_cursor = False
+            declare_found = False
             capture_tables = False
             cursor_name = "N/A"
             cursor_declaration = []
             table_name = []
             extracted_data = []
+            declare_line = 1
 
             for record in records:
                 try:
@@ -67,12 +70,20 @@ def process_file(filename):
 
                     if process_sql:
 
-                        if "DECLARE " in record and " CURSOR " in record:
+                        if "DECLARE " in record and not declare_found:
+                            declare_found = True
+                            declare_line += 1
+
+                        if declare_found and " CURSOR " in record:
                             process_cursor = True
-                            cursor_name = record.split(" CURSOR ")[0].split()[-1]
+                            declare_found = False
+
+                        if declare_found and declare_line == 2:
+                            process_cursor = True
+                            declare_found = False
 
                         # set process cursor flag
-                        if process_cursor:
+                        if process_cursor or declare_found:
                             cursor_declaration.extend([record.replace("  ", "")])
 
                         if capture_tables:
